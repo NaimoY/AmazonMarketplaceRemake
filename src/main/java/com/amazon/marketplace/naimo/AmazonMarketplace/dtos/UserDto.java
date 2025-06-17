@@ -3,7 +3,6 @@ package com.amazon.marketplace.naimo.AmazonMarketplace.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 /*
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserDto {
     private int id;
-    private String fristName;
+    private String firstName;
     private String lastName;
     private String email;
     private String username;
@@ -26,5 +25,5 @@ public class UserDto {
 
     //private LocalDateTime createdAt = LocalDateTime.now();
     //private LocalDateTime updatedAt = LocalDateTime.now();
-
+   private AddressDto addressDto;
 }

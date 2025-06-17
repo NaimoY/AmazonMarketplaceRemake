@@ -1,7 +1,10 @@
 package com.amazon.marketplace.naimo.AmazonMarketplace.services.impl;
 
+import com.amazon.marketplace.naimo.AmazonMarketplace.dtos.AddressDto;
 import com.amazon.marketplace.naimo.AmazonMarketplace.dtos.UserDto;
+import com.amazon.marketplace.naimo.AmazonMarketplace.entities.Address;
 import com.amazon.marketplace.naimo.AmazonMarketplace.entities.User;
+import com.amazon.marketplace.naimo.AmazonMarketplace.mappers.AddressMapper;
 import com.amazon.marketplace.naimo.AmazonMarketplace.mappers.UserMapper;
 import com.amazon.marketplace.naimo.AmazonMarketplace.repositories.UserRepository;
 import com.amazon.marketplace.naimo.AmazonMarketplace.services.UserService;
@@ -17,6 +20,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private AddressMapper addressMapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -27,6 +32,9 @@ public class UserServiceImpl implements UserService {
                 send that back to the controller.
          */
         User user = userMapper.mapToUser(userDto);
+        Address address = addressMapper.mapToAddress(userDto.getAddressDto(), user);
+        user.setAddress(address);
+
         User savedUser = userRepository.save(user);
         return userMapper.mapToUserDto(savedUser);
     }
@@ -49,32 +57,51 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUserByID(UserDto userDto, int id) {
-        /*
-        1. retrieve a JPA user by the ID passed
+         /*
+        1. Retrieve a JPA user by the ID passed
         2. Use setters to update the JPA by using getters on the userDto
-        3. Save the updated JPA user back to the database
-        4. return the response from db back to the Controller
-
+        3. Save the updated JPA user back to the database and
+        4. Return the response from the DB back to the controller
          */
         User user = userRepository.findById(id)
                 .orElseThrow( () -> new RuntimeException("User with this ID doesn't exist") );
-        user.setFirstName(userDto.getFristName());
+
+        user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setUsername(userDto.getUsername());
         user.setPassword(userDto.getPassword());
-        //user.setUpdatedAt(userDto.getUpdatedAt());
+//        user.setUpdatedAt(userDto.getUpdatedAt());
+
+        if (userDto.getAddressDto() != null) {
+            AddressDto addressDto = userDto.getAddressDto();
+            Address existingAddress = user.getAddress();
+
+            if (existingAddress == null) {
+                Address updatedAddress = addressMapper.mapToAddress(addressDto, user);
+                user.setAddress(updatedAddress);
+            }
+            else {
+                existingAddress.setStreet(addressDto.getStreet());
+                existingAddress.setCity(addressDto.getCity());
+                existingAddress.setState(addressDto.getState());
+                existingAddress.setPostalCode(addressDto.getPostalCode());
+                existingAddress.setCountry(addressDto.getCountry());
+            }
+        }
 
         User savedUser = userRepository.save(user);
-
         return userMapper.mapToUserDto(savedUser);
     }
 
     @Override
     public String deleteUserByID(int id) {
-        if (userRepository.existsById(id)){
+        if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
             return "Deleted user with ID " + id;
+        }
+
+        return "No such user with ID " + id;
     }
-        return "No such user with ID" + id;
-    }
+
+
 }

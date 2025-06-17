@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 /*
 This is the JPA object. This is what we send to the DB.
-Also, when we retrieve User objects from the DB, they will be in the form of JPA objects.
+Also, when we retrieve User objects from the DB, they
+will be in the form of JPA objects.
  */
 @Getter
 @Setter
@@ -41,14 +42,28 @@ public class User {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
+    private Address address;
+
     @PrePersist
-    public void onCreate(){
+    public void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-
     }
 
-    public void onUpdate(){
-         this.updatedAt = LocalDateTime.now();
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
+
+
+
+
+
+
+
+
+
+
