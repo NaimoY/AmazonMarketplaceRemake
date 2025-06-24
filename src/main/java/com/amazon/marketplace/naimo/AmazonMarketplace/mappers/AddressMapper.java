@@ -32,6 +32,10 @@ public class AddressMapper {
         addressDto.setPostalCode(address.getPostalCode());
         addressDto.setCountry(address.getCountry());
 
+        //Bug fix: set Created and Updated @
+        addressDto.setCreatedAt(address.getCreatedAt());
+        addressDto.setUpdatedAt(address.getUpdatedAt());
+
         return addressDto;
     }
 }
